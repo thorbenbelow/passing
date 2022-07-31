@@ -5,41 +5,37 @@ import bodyParser from "body-parser";
 const app = express();
 
 app.use(express.static(resolve("./", "public")))
-
 app.use(bodyParser.json())
 
 app.get("/", (req, res) => void res.sendFile(resolve("./", "public", "index.html")))
 
-
 const cache = new Map();
 
-
 app.get("/pass", (req, res) => {
-  const key = req.body.key;
-  if (!key) {
+  const id = req.query.id;
+  if (!id) {
     return res.sendStatus(400)
   }
 
-  const pass = cache.get(key)
-  if (!pass) {
+  const pair = cache.get(id)
+  if (!pair) {
     return res.sendStatus(404)
   }
 
-  res.send(pass)
+  res.json(pair)
 })
 
 
 app.post("/pass", (req, res) => {
-  console.log(req.body)
-
   const id = req.body.uuid
-  const pass = req.body.hash
+  const hash = req.body.hash
+  const counter = req.body.counter
 
-  if (!id || !pass) {
+  if (!id || !hash || !counter) {
     return res.sendStatus(400)
   }
 
-  cache.set(id, pass)
+  cache.set(id, { hash, counter })
 
   res.sendStatus(201)
 })
